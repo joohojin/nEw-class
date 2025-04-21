@@ -1,0 +1,16 @@
+Course: 123023 - ACT 08분반 (ACT 08분반)
+
+--- Syllabus (HTML) ---
+<iframe src="https://rpt80.cau.ac.kr/oz80/ozViewer.jsp?ozr_path=TIS/prof/usk&amp;ozr_nm=pUskLei008&amp;param_odi=year=2025,shtm=1,camp_cd=2,sust=30000,sbjt_no=49950,clss_no=08&amp;param_form=new" width="100%" height="1122"></iframe>
+
+--- Assignments ---
+[1524674] 개인과제 (created: 2025-03-24, due: 미정)
+[1524676] 조원평가 (created: 2025-03-24, due: 미정)
+[1524675] 기말 시놉시스 (created: 2025-03-24, due: 미정)
+
+--- Announcements ---
+[395876] 여덟번째 액트 수업에 대하여 (created: 2025-04-17, posted: 2025-04-17)
+[393885] 일곱번째 액트 수업에 대하여 (created: 2025-04-10, posted: 2025-04-10)
+
+--- Weekly Learning Tool (ID:211) ---
+[주차 학습 URL 없음]
