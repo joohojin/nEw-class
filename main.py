@@ -9,13 +9,14 @@ from canvasapi import Canvas
 import requests
 import re
 import html
-import tempfile
+import sys
+import os
 from pathlib import Path
-from PyPDF2 import PdfReader                     # pip install PyPDF2
+import time
 
 # --- 설정 ---
 API_URL = "https://eclass3.cau.ac.kr"
-API_KEY = "hRJj9VApatMu1qNRvV91F0oT0PvRGeRbObnMbdeHnM73UVIqrDPvR2teKut9sSlz"
+API_KEY = ""
 
 # 로깅 초기화
 logging.basicConfig(
@@ -24,7 +25,6 @@ logging.basicConfig(
 )
 
 # Canvas API 에서 이것 저것 가져오기
-
 def fetch_current_user(canvas):
     return canvas.get_current_user()
 
@@ -55,29 +55,82 @@ def fetch_weekly_tool_url(course):
     except:
         return ""
 
-# === PDF 다운로드 === ( 그런데 작동 안함 )
-
+# === iframe URL 추출 ===
 def extract_pdf_url_from_iframe(html_body):
-    match = re.search(r'<iframe[^>]+src="([^"]+)"', html_body)
-    return html.unescape(match.group(1)) if match else None
+    if not html_body:
+        return None
+    
+    iframe_match = re.search(r'<iframe[^>]+src="([^"]+)"', html_body)
+    if not iframe_match:
+        return None
+    
+    iframe_url = html.unescape(iframe_match.group(1))
+    logging.debug(f"iframe URL 추출: {iframe_url}")
+    return iframe_url
 
-def download_pdf(session, iframe_url):
-    resp = session.get(iframe_url)
-    resp.raise_for_status()
-    pdf_match = re.search(r'<object[^>]+data="([^"]+\.pdf)"', resp.text)
-    if not pdf_match:
-        raise RuntimeError("PDF URL not found in viewer page")
-    pdf_url = html.unescape(pdf_match.group(1))
-    pdf_resp = session.get(pdf_url)
-    pdf_resp.raise_for_status()
-    return pdf_resp.content
-
-def save_pdf_to_file(pdf_bytes, filename):
-    with open(filename, 'wb') as f:
-        f.write(pdf_bytes)
+# === 브라우저 창 열기 ===
+def open_browser_window(iframe_url):
+    """
+    강의계획서 iframe URL을 브라우저에서 엽니다.
+    
+    Args:
+        iframe_url (str): PDF가 포함된 iframe URL
+        
+    Returns:
+        bool: 성공 여부
+    """
+    # 모듈 임포트 (여기서 직접 임포트)
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+    except ImportError as e:
+        print(f"오류: 필요한 모듈이 설치되지 않았습니다. {e}")
+        print("pip install selenium 명령으로 설치해주세요.")
+        return False
+    
+    # Chrome 옵션 설정 - 창을 표시하도록 설정
+    options = Options()
+    options.add_argument("--start-maximized")  # 창 최대화
+    
+    # WebDriver 초기화
+    try:
+        driver = webdriver.Chrome(options=options)
+    except Exception as e:
+        print(f"ChromeDriver 초기화 실패: {e}")
+        print("Chrome 브라우저와 호환되는 ChromeDriver가 설치되어 있는지 확인하세요.")
+        return False
+    
+    try:
+        print(f"브라우저로 iframe URL 열기: {iframe_url}")
+        
+        # iframe URL로 이동
+        driver.get(iframe_url)
+        
+        print("브라우저 창이 열렸습니다. 확인 후 창을 직접 닫아주세요.")
+        print("또는 이 프로그램을 종료하면 브라우저 창도 함께 닫힙니다.")
+        
+        # 사용자가 창을 보는 동안 프로그램 종료 방지
+        try:
+            # 브라우저 창이 닫힐 때까지 대기
+            while len(driver.window_handles) > 0:
+                time.sleep(1)
+        except:
+            # 사용자가 Ctrl+C로 종료하거나 다른 예외가 발생할 경우
+            pass
+        
+        return True
+    
+    except Exception as e:
+        print(f"브라우저 창 열기 중 오류: {e}")
+        return False
+    
+    finally:
+        try:
+            driver.quit()  # 프로그램 종료 시 드라이버도 정리
+        except:
+            pass  # 이미 닫혔다면 무시
 
 # === txt 보고서 작성 ===
-
 def compile_report(course, syllabus, assignments, announcements, weekly_url):
     lines = [
         f"Course: {course.id} - {course.name} ({course.course_code})",
@@ -114,59 +167,57 @@ def save_report_to_file(lines, filename):
         f.write("\n".join(lines))
 
 # 메인인
-
 if __name__ == "__main__":
     canvas = Canvas(API_URL, API_KEY)
     session = requests.Session()
     session.headers.update({"Authorization": f"Bearer {API_KEY}"})
 
-     # 토큰 유효성 테스트 및 사용자
+    # 토큰 유효성 테스트 및 사용자
     user = fetch_current_user(canvas)
     if not user:
         raise SystemExit("[ERROR] 사용자 인증에 실패했습니다.")
 
-    # 강의 목록 필터: 2025-02-01 이후 생성 및 강의 계획서가 존재하는 강의만 표시
+    # 미리 작성된: 2025-02-01 이후 생성된 강의 목록 표시
     start_dt = datetime(2025, 2, 1, tzinfo=timezone.utc)
     end_dt   = datetime(2025, 6, 30, 23, 59, 59, tzinfo=timezone.utc)
-    all_courses = user.get_courses(enrollment_state="active")
-    filtered_courses = []
+    try:
+        all_courses = user.get_courses(enrollment_state="active")
+        print("\n=== 2025‑1학기 생성 강의 목록 (2월 이후) ===")
+        for c in all_courses:
+            created = date_parser.isoparse(c.created_at)
+            if start_dt <= created <= end_dt:
+                print(f"{c.id:<8} {created.date()}  {c.name}")
+    except Exception as e:
+        logging.warning(f"[WARNING] 강의 목록 조회 실패: {e}")
 
-    # 강의 필터링
-    for c in all_courses:
-        created = date_parser.isoparse(c.created_at)
-        if start_dt <= created <= end_dt:
-            syllabus = fetch_course_syllabus(canvas, c.id)
-            if syllabus and syllabus.syllabus_body:
-                filtered_courses.append((c, created.date()))
-
-    if not filtered_courses:
-        raise SystemExit("[ERROR] 조회 가능한 강의가 없습니다.")
-
-    # 필터된 강의 목록을 보기 쉽게 한번에 출력
-    print("\n=== 2025‑1학기 생성 강의 목록 (강의 계획서가 있는 강의만 표시) ===")
-    for course_item, created_date in filtered_courses:
-        print(f"ID: {course_item.id:<8} 생성일: {created_date}  강의명: {course_item.name}")
-
+    # 대상 강의 선택
     choice = input("\n조회할 강의 ID 또는 코드 입력: ").strip()
-    # filtered_courses에서 강의 객체만 추출하여 검색
-    course = select_course([c for c, _ in filtered_courses], choice)
+    courses = fetch_active_courses(user)
+    course = select_course(courses, choice)
     if not course:
         raise SystemExit(f"[ERROR] '{choice}'에 해당하는 강의를 찾을 수 없습니다.")
 
-    # 강의 계획서 PDF 저장
+    # 강의 계획서 iframe URL 추출
     syllabus = fetch_course_syllabus(canvas, course.id)
     iframe_url = extract_pdf_url_from_iframe(syllabus.syllabus_body or "")
+    
     if iframe_url:
         try:
-            pdf_bytes = download_pdf(session, iframe_url)
-            pdf_filename = f"{course.name.replace('/', '_')} 강의 계획서.pdf"
-            save_pdf_to_file(pdf_bytes, pdf_filename)
-            print(f"PDF를 '{pdf_filename}' 파일로 저장했습니다.")
+            # URL이 상대 경로인 경우 절대 경로로 변환
+            if not iframe_url.startswith(('http://', 'https://')):
+                iframe_url = f"{API_URL}{iframe_url if iframe_url.startswith('/') else '/' + iframe_url}"
+            
+            print(f"강의 계획서 iframe URL: {iframe_url}")
+            
+            # 브라우저 창으로 강의계획서 열기
+            print("브라우저 창으로 강의계획서를 엽니다...")
+            open_browser_window(iframe_url)
+            
         except Exception as e:
-            logging.warning(f"[WARNING] PDF 다운로드 실패: {e}")
+            logging.warning(f"[WARNING] 강의 계획서 처리 중 오류: {e}", exc_info=True)
     else:
         logging.warning("강의 계획서 iframe URL을 찾을 수 없습니다.")
-
+        
     # 자료 수집 및 보고서 작성
     assignments   = fetch_assignments(course)
     announcements = fetch_announcements(canvas, course.id)
