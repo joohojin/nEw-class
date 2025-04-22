@@ -1,0 +1,17 @@
+Course: 122888 - 한국사 06분반 (한국사 06분반)
+
+--- Syllabus (HTML) ---
+<iframe src="https://rpt80.cau.ac.kr/oz80/ozViewer.jsp?ozr_path=TIS/prof/usk&amp;ozr_nm=pUskLei008&amp;param_odi=year=2025,shtm=1,camp_cd=2,sust=30000,sbjt_no=42301,clss_no=06&amp;param_form=new" width="100%" height="1122"></iframe>
+
+--- Assignments ---
+[1524540] 서평 (created: 2025-03-24, due: 2025-04-17)
+    Description: 서평
+- 제출 일자 : 4/17(목) 24:00까지
+- 지정 도서 : 김현구, 2010, 『임나일본부설은 허구인가 : 한일분쟁의 영원한 불씨를 넘어서』, 창비
+
+--- Announcements ---
+[396244] 중간고사 공지 (created: 2025-04-19, posted: 2025-04-19)
+[394602] 7주차 조선의 지배체제 2 (created: 2025-04-14, posted: 2025-04-14)
+
+--- Weekly Learning Tool (ID:211) ---
+[주차 학습 URL 없음]

@@ -1,0 +1,15 @@
+Course: 122179 - 데이터표현및알고리즘 01분반 (데이터표현및알고리즘 01분반)
+
+--- Syllabus (HTML) ---
+<iframe src="https://rpt80.cau.ac.kr/oz80/ozViewer.jsp?ozr_path=TIS/prof/usk&amp;ozr_nm=pUskLei008&amp;param_odi=year=2025,shtm=1,camp_cd=2,sust=3E720,sbjt_no=54601,clss_no=01&amp;param_form=new" width="100%" height="1122"></iframe>
+
+--- Assignments ---
+[1523071] [과제#2] 데이터의 표현 실수와 문자 (created: 2025-03-19, due: 2025-03-28)
+    Description: [설명 없음]
+[1529249] [과제#3] 배열과 스택의 활용: 미로 찾기 로봇 (created: 2025-04-09, due: 2025-04-15)
+    Description: [설명 없음]
+
+--- Announcements ---
+
+--- Weekly Learning Tool (ID:211) ---
+[주차 학습 URL 없음]

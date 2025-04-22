@@ -5,8 +5,11 @@ Course: 123023 - ACT 08분반 (ACT 08분반)
 
 --- Assignments ---
 [1524674] 개인과제 (created: 2025-03-24, due: 미정)
+    Description: [설명 없음]
 [1524676] 조원평가 (created: 2025-03-24, due: 미정)
+    Description: [설명 없음]
 [1524675] 기말 시놉시스 (created: 2025-03-24, due: 미정)
+    Description: [설명 없음]
 
 --- Announcements ---
 [395876] 여덟번째 액트 수업에 대하여 (created: 2025-04-17, posted: 2025-04-17)

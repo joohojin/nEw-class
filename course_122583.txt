@@ -1,17 +1,30 @@
 Course: 122583 - 불어(초급) 01분반 (불어(초급) 01분반)
 
---- Syllabus ---
+--- Syllabus (HTML) ---
 <iframe src="https://rpt80.cau.ac.kr/oz80/ozViewer.jsp?ozr_path=TIS/prof/usk&amp;ozr_nm=pUskLei008&amp;param_odi=year=2025,shtm=1,camp_cd=2,sust=30000,sbjt_no=28814,clss_no=01&amp;param_form=new" width="100%" height="1122"></iframe>
 
 --- Assignments ---
 [1519988] 1~2과 단어 찾기 (created: 2025-03-10, due: 2025-03-20)
+    Description: 교재 1과와 2과에 나오는 "모르는 단어의 뜻"을 찾으세요.
+단어 개수 : 각 과마다 15개 이상
 [1521398] 성찰일지 1 (created: 2025-03-13, due: 2025-03-27)
+    Description: 수업을 들으면서 느꼈던 어려움, 궁금증 또는 흥미로움, 앞으로 집중적으로 공부해야 할 부분 및 방법 등
+스스로 학습하는 데 도움이 될 수 있도록 배운 것을 정리하고 되짚어 보면서 '나만의 학습 계획'을 세워보도록 하세요.
+형식이나 내용에 구애받지 말고 자유롭게 적어 보세요. 
+* 단, 지나치게 짧고 성의 없는 과제물은 감점의 요인이 될 수 있습니다.
 [1524116] 성찰일지 2 (created: 2025-03-23, due: 2025-04-03)
+    Description: [설명 없음]
 [1524117] 3과 단어 찾기 (created: 2025-03-23, due: 2025-04-03)
+    Description: 교재 3과에 나오는 "모르는 단어의 뜻"을 찾으세요.
+단어 개수 : 최소 15개 이상
 [1524118] 성찰일지 3 (created: 2025-03-23, due: 2025-04-10)
+    Description: [설명 없음]
 [1524119] 성찰일지 4 (created: 2025-03-23, due: 2025-04-17)
+    Description: [설명 없음]
 [1528165] 4과 단어 찾기 (created: 2025-04-05, due: 2025-04-10)
+    Description: [설명 없음]
 [1524121] 5과 단어 찾기 (created: 2025-03-23, due: 2025-04-17)
+    Description: [설명 없음]
 
 --- Announcements ---
 [393003] 중간고사 공지  (created: 2025-04-07, posted: 2025-04-07)
