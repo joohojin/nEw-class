@@ -15,7 +15,7 @@ logging.basicConfig(
 
 # 2) API 접속 정보
 API_URL = "https://eclass3.cau.ac.kr"  # CAU E-Class API URL
-API_KEY = "hRJj9VApatMu1qNRvV91F0oT0PvRGeRbObnMbdeHnM73UVIqrDPvR2teKut9sSlz"
+API_KEY = "토큰"
 
 # 3) Canvas 인스턴스 생성
 canvas = Canvas(API_URL, API_KEY)

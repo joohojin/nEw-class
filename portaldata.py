@@ -9,8 +9,8 @@ import requests                              # Session, HTTP 요청 처리 :cont
 from bs4 import BeautifulSoup                # HTML 파싱 :contentReference[oaicite:5]{index=5}
 
 # --- 설정 영역 ---
-USER_ID    = 'joohojin33'
-PASSWORD   = 'dmd1403-52'
+USER_ID    = 'ID'  # 사용자 ID
+PASSWORD   = '비밀번호'  # 사용자 비밀번호
 LOGIN_URL  = 'https://mportal.cau.ac.kr/common/auth/SSOlogin.do'
 TARGET_URL = 'https://mportal.cau.ac.kr/std/usk/sUskCap003/index.do'
 

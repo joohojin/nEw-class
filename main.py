@@ -15,7 +15,7 @@ from PyPDF2 import PdfReader                     # pip install PyPDF2
 
 # --- 설정 ---
 API_URL = "https://eclass3.cau.ac.kr"
-API_KEY = "hRJj9VApatMu1qNRvV91F0oT0PvRGeRbObnMbdeHnM73UVIqrDPvR2teKut9sSlz"
+API_KEY = "토큰"
 
 # 로깅 초기화
 logging.basicConfig(
