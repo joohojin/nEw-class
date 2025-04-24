@@ -16,11 +16,7 @@ import time
 
 # --- 설정 ---
 API_URL = "https://eclass3.cau.ac.kr"
-<<<<<<< Updated upstream
-API_KEY = ""
-=======
 API_KEY = "여기에 토큰 입력" # CAU Eclass API Key
->>>>>>> Stashed changes
 
 # 로깅 초기화
 logging.basicConfig(
@@ -76,10 +72,7 @@ def extract_pdf_url_from_iframe(html_body):
 def open_browser_window(iframe_url):
     """
     강의계획서 iframe URL을 브라우저에서 엽니다.
-<<<<<<< Updated upstream
-=======
     특정 XPath 요소를 차례대로 클릭하도록 합니다.
->>>>>>> Stashed changes
     
     Args:
         iframe_url (str): PDF가 포함된 iframe URL
@@ -91,10 +84,7 @@ def open_browser_window(iframe_url):
     try:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
-<<<<<<< Updated upstream
-=======
         from selenium.webdriver.common.by import By
->>>>>>> Stashed changes
     except ImportError as e:
         print(f"오류: 필요한 모듈이 설치되지 않았습니다. {e}")
         print("pip install selenium 명령으로 설치해주세요.")
@@ -118,19 +108,6 @@ def open_browser_window(iframe_url):
         # iframe URL로 이동
         driver.get(iframe_url)
         
-<<<<<<< Updated upstream
-        print("브라우저 창이 열렸습니다. 확인 후 창을 직접 닫아주세요.")
-        print("또는 이 프로그램을 종료하면 브라우저 창도 함께 닫힙니다.")
-        
-        # 사용자가 창을 보는 동안 프로그램 종료 방지
-        try:
-            # 브라우저 창이 닫힐 때까지 대기
-            while len(driver.window_handles) > 0:
-                time.sleep(1)
-        except:
-            # 사용자가 Ctrl+C로 종료하거나 다른 예외가 발생할 경우
-            pass
-=======
         # 로딩 대기
         time.sleep(15)
         
@@ -164,7 +141,6 @@ def open_browser_window(iframe_url):
         import sys
         # course.id를 인자로 넘겨줍니다.
         subprocess.run([sys.executable, "Syllabuscsvmake.py", str(course.id)])
->>>>>>> Stashed changes
         
         return True
     
@@ -176,11 +152,7 @@ def open_browser_window(iframe_url):
         try:
             driver.quit()  # 프로그램 종료 시 드라이버도 정리
         except:
-<<<<<<< Updated upstream
-            pass  # 이미 닫혔다면 무시
-=======
             pass
->>>>>>> Stashed changes
 
 # === txt 보고서 작성 ===
 def compile_report(course, syllabus, assignments, announcements, weekly_url):
@@ -218,72 +190,17 @@ def save_report_to_file(lines, filename):
     with open(filename, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
 
-<<<<<<< Updated upstream
-# 메인인
-=======
 # 메인
->>>>>>> Stashed changes
 if __name__ == "__main__":
     canvas = Canvas(API_URL, API_KEY)
     session = requests.Session()
     session.headers.update({"Authorization": f"Bearer {API_KEY}"})
 
-<<<<<<< Updated upstream
-    # 토큰 유효성 테스트 및 사용자
-=======
     # 사용자 인증 검사
->>>>>>> Stashed changes
     user = fetch_current_user(canvas)
     if not user:
         raise SystemExit("[ERROR] 사용자 인증에 실패했습니다.")
 
-<<<<<<< Updated upstream
-    # 미리 작성된: 2025-02-01 이후 생성된 강의 목록 표시
-    start_dt = datetime(2025, 2, 1, tzinfo=timezone.utc)
-    end_dt   = datetime(2025, 6, 30, 23, 59, 59, tzinfo=timezone.utc)
-    try:
-        all_courses = user.get_courses(enrollment_state="active")
-        print("\n=== 2025‑1학기 생성 강의 목록 (2월 이후) ===")
-        for c in all_courses:
-            created = date_parser.isoparse(c.created_at)
-            if start_dt <= created <= end_dt:
-                print(f"{c.id:<8} {created.date()}  {c.name}")
-    except Exception as e:
-        logging.warning(f"[WARNING] 강의 목록 조회 실패: {e}")
-
-    # 대상 강의 선택
-    choice = input("\n조회할 강의 ID 또는 코드 입력: ").strip()
-    courses = fetch_active_courses(user)
-    course = select_course(courses, choice)
-    if not course:
-        raise SystemExit(f"[ERROR] '{choice}'에 해당하는 강의를 찾을 수 없습니다.")
-
-    # 강의 계획서 iframe URL 추출
-    syllabus = fetch_course_syllabus(canvas, course.id)
-    iframe_url = extract_pdf_url_from_iframe(syllabus.syllabus_body or "")
-    
-    if iframe_url:
-        try:
-            # URL이 상대 경로인 경우 절대 경로로 변환
-            if not iframe_url.startswith(('http://', 'https://')):
-                iframe_url = f"{API_URL}{iframe_url if iframe_url.startswith('/') else '/' + iframe_url}"
-            
-            print(f"강의 계획서 iframe URL: {iframe_url}")
-            
-            # 브라우저 창으로 강의계획서 열기
-            print("브라우저 창으로 강의계획서를 엽니다...")
-            open_browser_window(iframe_url)
-            
-        except Exception as e:
-            logging.warning(f"[WARNING] 강의 계획서 처리 중 오류: {e}", exc_info=True)
-    else:
-        logging.warning("강의 계획서 iframe URL을 찾을 수 없습니다.")
-        
-    # 자료 수집 및 보고서 작성
-    assignments   = fetch_assignments(course)
-    announcements = fetch_announcements(canvas, course.id)
-    weekly_url    = fetch_weekly_tool_url(course)
-=======
     # 2월 이후 생성 강의 필터링
     start_dt = datetime(2025, 2, 1, tzinfo=timezone.utc)
     end_dt   = datetime(2025, 3, 1, 23, 59, 59, tzinfo=timezone.utc)
@@ -302,7 +219,6 @@ if __name__ == "__main__":
     for fc in filtered_courses:
         created_dt = date_parser.isoparse(fc.created_at).date()
         print(f"{fc.id:<8} {created_dt}  {fc.name}")
->>>>>>> Stashed changes
 
     # 필터링된 각 강의에 대해 순서대로 처리
     if not filtered_courses:
