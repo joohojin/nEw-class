@@ -16,7 +16,7 @@ import time
 
 # --- 설정 ---
 API_URL = "https://eclass3.cau.ac.kr"
-API_KEY = "iza5yudtGaqKrKgusZFIRI8CDVgesC7UGY6MpKNUZ6LwMDspX4zM0wrXd7ipDyD7" # CAU Eclass API Key
+API_KEY = "iza5yudtGaqKrKgusZFIRI8CDVgesC7UGY6MpKNUZ6LwMDspX4zM0wrXd7ipDyD7"  # 기본값(필요 시 외부에서 전달)
 
 # 로깅 초기화
 logging.basicConfig(
@@ -24,20 +24,9 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 
-# Canvas API 에서 이것 저것 가져오기
+# Canvas API 관련 함수들
 def fetch_current_user(canvas):
     return canvas.get_current_user()
-
-def fetch_active_courses(user):
-    return list(user.get_courses(enrollment_state="active", per_page=100))
-
-def select_course(courses, raw_input):
-    if raw_input.isdigit():
-        cid = int(raw_input)
-        matches = [c for c in courses if c.id == cid]
-    else:
-        matches = [c for c in courses if getattr(c, 'course_code', None) == raw_input]
-    return matches[0] if matches else None
 
 def fetch_course_syllabus(canvas, course_id):
     return canvas.get_course(course_id, include="syllabus_body")
@@ -55,32 +44,21 @@ def fetch_weekly_tool_url(course):
     except:
         return ""
 
-# === iframe URL 추출 ===
 def extract_pdf_url_from_iframe(html_body):
     if not html_body:
         return None
-    
     iframe_match = re.search(r'<iframe[^>]+src="([^"]+)"', html_body)
     if not iframe_match:
         return None
-    
     iframe_url = html.unescape(iframe_match.group(1))
     logging.debug(f"iframe URL 추출: {iframe_url}")
     return iframe_url
 
-# === 브라우저 창 열기 ===
 def open_browser_window(iframe_url):
     """
-    강의계획서 iframe URL을 브라우저에서 엽니다.
-    특정 XPath 요소를 차례대로 클릭하도록 합니다.
-    
-    Args:
-        iframe_url (str): PDF가 포함된 iframe URL
-        
-    Returns:
-        bool: 성공 여부
+    강의계획서 iframe URL을 브라우저에서 열고, PDF 다운로드 자동화를 수행합니다.
+    (Selenium을 이용)
     """
-    # 모듈 임포트 (여기서 직접 임포트)
     try:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
@@ -89,72 +67,53 @@ def open_browser_window(iframe_url):
         print(f"오류: 필요한 모듈이 설치되지 않았습니다. {e}")
         print("pip install selenium 명령으로 설치해주세요.")
         return False
-    
-    # Chrome 옵션 설정 - 창을 표시하도록 설정
+
     options = Options()
-    options.add_argument("--start-maximized")  # 창 최대화
-    
-    # WebDriver 초기화
+    options.add_argument("--start-maximized")
     try:
         driver = webdriver.Chrome(options=options)
     except Exception as e:
         print(f"ChromeDriver 초기화 실패: {e}")
         print("Chrome 브라우저와 호환되는 ChromeDriver가 설치되어 있는지 확인하세요.")
         return False
-    
+
     try:
         print(f"브라우저로 iframe URL 열기: {iframe_url}")
-        
-        # iframe URL로 이동
         driver.get(iframe_url)
-        
-        # 로딩 대기
         time.sleep(5)
-        
-        # 첫 번째 XPath 요소 클릭: /html/body/div/div[1]/input[4]
+        # 첫 번째 XPath 요소 클릭
         xpath1 = "/html/body/div/div[1]/input[4]"
         try:
             driver.find_element(By.XPATH, xpath1).click()
             print("첫 번째 요소 클릭 완료.")
         except Exception as e:
             print(f"첫 번째 요소 클릭 실패: {e}")
-        
-        # 클릭 후 딜레이
         time.sleep(3)
-        
-        # 두 번째 XPath 요소 클릭: /html/body/div[2]/div[2]/div/button[1]
+        # 두 번째 XPath 요소 클릭
         xpath2 = "/html/body/div[2]/div[2]/div/button[1]"
         try:
             driver.find_element(By.XPATH, xpath2).click()
             print("두 번째 요소 클릭 완료.")
         except Exception as e:
             print(f"두 번째 요소 클릭 실패: {e}")
-        
-        # 두 번째 요소 클릭 후 5초 대기 후 자동 종료
         time.sleep(3)
         print("두 번째 요소 클릭 후 5초 후 브라우저 창을 자동으로 닫습니다.")
         driver.quit()
-        
         # 브라우저 종료 후 Syllabuscsvmake.py 실행 (동일 폴더 내)
         print("브라우저 창이 닫혔습니다. Syllabuscsvmake.py를 실행합니다.")
         import subprocess
         import sys
-        # course.id를 인자로 넘겨줍니다.
         subprocess.run([sys.executable, "Syllabuscsvmake.py", str(course.id)])
-        
         return True
-    
     except Exception as e:
         print(f"브라우저 창 열기 중 오류: {e}")
         return False
-    
     finally:
         try:
-            driver.quit()  # 프로그램 종료 시 드라이버도 정리
+            driver.quit()
         except:
             pass
 
-# === txt 보고서 작성 ===
 def compile_report(course, syllabus, assignments, announcements, weekly_url):
     lines = [
         f"Course: {course.id} - {course.name} ({course.course_code})",
@@ -190,11 +149,15 @@ def save_report_to_file(lines, filename):
     with open(filename, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
 
-# 메인
-if __name__ == "__main__":
-    canvas = Canvas(API_URL, API_KEY)
+def run_main(api_key):
+    """
+    PyScript에서 API 키를 전달받아 실행이 가능하도록 만든 함수.
+    """
+    global API_URL
+
+    canvas = Canvas(API_URL, api_key)
     session = requests.Session()
-    session.headers.update({"Authorization": f"Bearer {API_KEY}"})
+    session.headers.update({"Authorization": f"Bearer {api_key}"})
 
     # 사용자 인증 검사
     user = fetch_current_user(canvas)
@@ -220,12 +183,10 @@ if __name__ == "__main__":
         created_dt = date_parser.isoparse(fc.created_at).date()
         print(f"{fc.id:<8} {created_dt}  {fc.name}")
 
-    # 필터링된 각 강의에 대해 순서대로 처리
+    # 필터링된 강의가 없는 경우 처리
     if not filtered_courses:
         print("\n[INFO] 2월 이후 생성된 강의가 없습니다.")
-        sys.exit(0)
-
-    assignments_rows = []  # 모든 강의의 과제 정보를 누적할 리스트
+        return
 
     print("\n[INFO] 2월 이후 생성된 강의에 대해 순차적으로 강의계획서를 열고, 자료를 수집하여 보고서를 생성합니다.")
     for course in filtered_courses:
@@ -237,16 +198,12 @@ if __name__ == "__main__":
         
         if iframe_url:
             try:
-                # 상대경로를 절대경로로 변환
+                # 상대경로일 경우 절대경로로 변환
                 if not iframe_url.startswith(('http://', 'https://')):
                     iframe_url = f"{API_URL}{iframe_url if iframe_url.startswith('/') else '/' + iframe_url}"
-                
                 print(f"강의 계획서 iframe URL: {iframe_url}")
-                
-                # 브라우저 창으로 강의계획서 열기(다운로드 자동화 포함)
                 print("브라우저 창으로 강의계획서를 엽니다...")
                 open_browser_window(iframe_url)
-                
             except Exception as e:
                 logging.warning(f"[WARNING] 강의 계획서 처리 중 오류: {e}", exc_info=True)
         else:
@@ -261,21 +218,13 @@ if __name__ == "__main__":
         report_filename = f"course_{course.id}.txt"
         save_report_to_file(report_lines, report_filename)
         print(f"텍스트 보고서를 '{report_filename}' 파일로 저장했습니다.")
-
-        # ★ 과제 정보를 assignments_rows에 추가
-        for a in assignments:
-            course_title = course.name
-            assignment_title = a.name
-            assignment_content = a.description if getattr(a, 'description', None) else ""
-            assignment_url = f"https://eclass3.cau.ac.kr/courses/{course.id}/assignments/{a.id}"
-            assignments_rows.append([course_title, assignment_title, assignment_content, assignment_url])
     
     print("\n모든 강의에 대한 처리 및 보고서 작성이 완료되었습니다.")
 
-    # ★ 누적된 과제 정보를 assignments.csv로 저장
-    if assignments_rows:
-        import pandas as pd
-        assignments_csv_path = Path("assignments.csv")
-        df_assignments = pd.DataFrame(assignments_rows, columns=["강의 제목", "과제 제목", "과제 내용", "과제 URL"])
-        df_assignments.to_csv(assignments_csv_path, index=False, encoding="utf-8-sig")
-        print(f"과제 데이터를 '{assignments_csv_path}' 파일로 저장했습니다.")
+if __name__ == "__main__":
+    # 터미널 실행 시, 인자나 기본값으로 API 키 사용
+    if len(sys.argv) > 1:
+        arg_api_key = sys.argv[1]
+    else:
+        arg_api_key = API_KEY
+    run_main(arg_api_key)

@@ -12,8 +12,8 @@ Course: 123023 - ACT 08분반 (ACT 08분반)
     Description: [설명 없음]
 
 --- Announcements ---
+[397281] 아홉 번째 액트 수업에 대하여 (created: 2025-04-24, posted: 2025-04-24)
 [395876] 여덟번째 액트 수업에 대하여 (created: 2025-04-17, posted: 2025-04-17)
-[393885] 일곱번째 액트 수업에 대하여 (created: 2025-04-10, posted: 2025-04-10)
 
 --- Weekly Learning Tool (ID:211) ---
 [주차 학습 URL 없음]

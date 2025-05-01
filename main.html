@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Emain.py PyScript 실행 예시</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+      body { font-family: sans-serif; padding: 2rem; }
+      input, button { font-size: 1.1rem; margin: 0.5rem 0; }
+      #output { white-space: pre-wrap; background: #f0f0f0; padding: 1rem; }
+    </style>
+    <py-config>
+      packages = [ "canvasapi", "python-dateutil", "requests" ]
+    </py-config>
+  </head>
+  <body>
+    <h1>Emain.py 실행 (PyScript)</h1>
+    <p>Canvas API Key를 입력한 후 실행 버튼을 눌러주세요.</p>
+    <label for="apiKeyInput">API Key:</label>
+    <input type="text" id="apiKeyInput" placeholder="Canvas API Key 입력..." />
+    <!-- py-click 속성을 사용하여 버튼 클릭 시 run_with_pyscript()를 호출 -->
+    <button py-click="run_with_pyscript()">실행</button>
+    <h2>실행 결과</h2>
+    <div id="output"></div>
+
+    <py-script>
+import logging, re, html, sys, os, time
+from datetime import datetime, timezone
+from pathlib import Path
+from dateutil import parser as date_parser
+import requests
+from canvasapi import Canvas
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+API_URL = "https://eclass3.cau.ac.kr"
+API_KEY = "default_key"
+
+def fetch_current_user(canvas):
+    return canvas.get_current_user()
+
+def fetch_course_syllabus(canvas, course_id):
+    return canvas.get_course(course_id, include="syllabus_body")
+
+def fetch_assignments(course):
+    return course.get_assignments()
+
+def fetch_announcements(canvas, course_id):
+    return canvas.get_announcements(context_codes=[f"course_{course_id}"])
+
+def fetch_weekly_tool_url(course):
+    try:
+        tool = course.get_external_tool(211)
+        return getattr(tool, 'url', '')
+    except:
+        return ""
+
+def extract_pdf_url_from_iframe(html_body):
+    if not html_body:
+        return None
+    iframe_match = re.search(r'<iframe[^>]+src="([^"]+)"', html_body)
+    if not iframe_match:
+        return None
+    iframe_url = html.unescape(iframe_match.group(1))
+    logging.debug(f"iframe URL 추출: {iframe_url}")
+    return iframe_url
+
+def open_browser_window(iframe_url):
+    print("Selenium은 PyScript 환경에서는 지원되지 않습니다.")
+
+def compile_report(course, syllabus, assignments, announcements, weekly_url):
+    lines = [
+        f"Course: {course.id} - {course.name} ({course.course_code})",
+        "",
+        "--- Syllabus (HTML) ---",
+        syllabus.syllabus_body or "[강의 계획서 없음]",
+        "",
+        "--- Assignments ---"
+    ]
+    for a in assignments:
+        created = date_parser.isoparse(a.created_at).date() if a.created_at else ''
+        due = date_parser.isoparse(a.due_at).date() if a.due_at else '미정'
+        lines.append(f"[{a.id}] {a.name} (created: {created}, due: {due})")
+        desc = a.description or '[설명 없음]'
+        desc_text = re.sub(r'<[^>]+>', '', desc)
+        lines.append(f"    Description: {desc_text}")
+    lines += [
+        "",
+        "--- Announcements ---"
+    ]
+    for ann in announcements:
+        created = date_parser.isoparse(ann.created_at).date() if hasattr(ann, 'created_at') else ''
+        posted = date_parser.isoparse(ann.posted_at).date() if hasattr(ann, 'posted_at') else ''
+        lines.append(f"[{ann.id}] {ann.title} (created: {created}, posted: {posted})")
+    lines += [
+        "",
+        "--- Weekly Learning Tool (ID:211) ---",
+        weekly_url or "[주차 학습 URL 없음]"
+    ]
+    return lines
+
+def save_report_to_file(lines, filename):
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write("\n".join(lines))
+    print(f"텍스트 보고서를 '{filename}' 파일로 저장했습니다.")
+
+def run_main(api_key):
+    canvas = Canvas(API_URL, api_key)
+    session = requests.Session()
+    session.headers.update({"Authorization": f"Bearer {api_key}"})
+    user = fetch_current_user(canvas)
+    if not user:
+        print("[ERROR] 사용자 인증에 실패했습니다.")
+        return
+    start_dt = datetime(2025, 2, 1, tzinfo=timezone.utc)
+    end_dt   = datetime(2025, 3, 1, 23, 59, 59, tzinfo=timezone.utc)
+    all_courses = user.get_courses(enrollment_state="active")
+    filtered_courses = []
+    for c in all_courses:
+        try:
+            created = date_parser.isoparse(c.created_at)
+            if start_dt <= created <= end_dt:
+                filtered_courses.append(c)
+        except Exception as e:
+            logging.warning(f"[WARNING] 강의 생성일 조회 실패 ({c.id}): {e}")
+    print("\n=== 2025‑1학기 생성 강의 목록 (2월 이후) ===")
+    for fc in filtered_courses:
+        created_dt = date_parser.isoparse(fc.created_at).date()
+        print(f"{fc.id:<8} {created_dt}  {fc.name}")
+    if not filtered_courses:
+        print("\n[INFO] 2월 이후 생성된 강의가 없습니다.")
+        return
+    print("\n[INFO] 보고서를 생성합니다.")
+    for course in filtered_courses:
+        print(f"\n=== 처리 중인 강의: {course.id} - {course.name} ({course.course_code}) ===")
+        syllabus = fetch_course_syllabus(canvas, course.id)
+        iframe_url = extract_pdf_url_from_iframe(syllabus.syllabus_body or "")
+        if iframe_url:
+            if not iframe_url.startswith(('http://','https://')):
+                iframe_url = f"{API_URL}{iframe_url if iframe_url.startswith('/') else '/' + iframe_url}"
+            print(f"강의 계획서 iframe URL: {iframe_url}")
+            open_browser_window(iframe_url)
+        else:
+            print("[WARNING] 강의 계획서 iframe URL을 찾을 수 없습니다.")
+        assignments   = fetch_assignments(course)
+        announcements = fetch_announcements(canvas, course.id)
+        weekly_url    = fetch_weekly_tool_url(course)
+        report_lines = compile_report(course, syllabus, assignments, announcements, weekly_url)
+        report_filename = f"course_{course.id}.txt"
+        save_report_to_file(report_lines, report_filename)
+    print("\n모든 강의에 대한 처리 및 보고서 작성이 완료되었습니다.")
+
+def run_with_pyscript():
+    from pyscript import Element
+    api_key = Element("apiKeyInput").value
+    if not api_key.strip():
+        print("[ERROR] API Key를 입력해주세요.")
+        return
+    run_main(api_key)
+    print("실행이 완료되었습니다.")
+    </py-script>
+  </body>
+</html>

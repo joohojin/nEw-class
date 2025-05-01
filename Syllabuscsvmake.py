@@ -65,14 +65,18 @@ def save_timetable(
 ) -> None:
     """
     DataFrame을 CSV 파일로 저장합니다.
-    파일이 이미 존재하면 헤더를 비교하여 일치하지 않으면 파일을 삭제한 후,
+    파일이 이미 존재하면 헤더를 비교하여 일치하지 않으면 파일을 삭제 후 재생성하고,
     아니면 새 행만 추가합니다.
     리스트 타입 칼럼은 문자열로 변환해 저장됩니다.
+    course.id 옆에 url 칼럼을 추가하여 "https://eclass3.cau.ac.kr/courses/{course.id}" 형식으로 저장합니다.
     """
-    expected_columns = ['lecture_name','professor','rooms','times','course.id']
+    expected_columns = ['lecture_name', 'professor', 'rooms', 'times', 'course.id', 'url']
     df_to_save = df.copy()
     df_to_save['rooms'] = df_to_save['rooms'].apply(lambda lst: " | ".join(lst))
     df_to_save['times'] = df_to_save['times'].apply(lambda lst: " | ".join(lst))
+    
+    # course.id를 기반으로 url 칼럼 추가
+    df_to_save['url'] = "https://eclass3.cau.ac.kr/courses/" + df_to_save["course.id"].astype(str)
     
     file_path = Path(path)
     
