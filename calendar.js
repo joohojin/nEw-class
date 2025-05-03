@@ -695,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function() {
         calendarHTML += `
             <div class="day${dayClass}" data-date="${dateKey}">
                 <span class="day-number">${i}</span>
-                ${''}
+                ${getDueAssignment(dateKey)}
                 ${''}
                 ${getTodoIndicator(dateKey)}
             </div>
@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="day other-month" data-date="${dateKey}">
                 <span class="day-number">${prevDate}</span>
                 ${getTodoIndicator(dateKey)}
-                ${''}
+                ${getDueAssignment(dateKey)}
             </div>
         `;
     }
@@ -729,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="day other-month" data-date="${dateKey}">
                 <span class="day-number">${i}</span>
                 ${getTodoIndicator(dateKey)}
-                ${''}
+                ${getDueAssignment(dateKey)}
             </div>
         `;
     }

@@ -74,12 +74,24 @@ body {
     background-color: #17a2b8;
 }
 
+.time-btn:hover {
+    background-color: #13999f;
+}
+
 .calendar-btn {
     background-color: #17a2b8;
 }
 
+.calendar-btn:hover {
+    background-color: #1389a0;
+}
+
 .clear-schedule-btn {
     background-color: #dc3545;
+}
+
+.clear-schedule-btn:hover {
+    background-color: #c02f40;
 }
 
 .assignment-btn {
@@ -87,8 +99,16 @@ body {
     color: #212529;
 }
 
+.assignment-btn:hover {
+    background-color: #e8b700;
+}
+
 .todo-btn {
     background-color: #dc3545;
+}
+
+.todo-btn:hover {
+    background-color: #c90f0f;
 }
 
 .weekdays {
