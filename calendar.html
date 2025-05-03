@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월별 달력</title>
+    <base target="_blank">
+    <link rel="stylesheet" href="calendar.css">
+    <!-- PapaParse 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 달력 섹션 -->
+        <div id="calendar-section" class="section-container">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="current-date-display" id="current-date-display">
+                        <!-- 현재 날짜가 JavaScript로 삽입됩니다 -->
+                    </div>
+                    <div class="buttons">
+                        <button class="btn time-btn" id="time-btn">시간표</button>
+                        <button class="btn assignment-btn">과제</button>
+                        <button class="btn todo-btn" id="todo-btn">To Do</button>
+                    </div>
+                </div>
+                
+                <div class="weekdays">
+                    <div class="weekday sunday">일</div>
+                    <div class="weekday">월</div>
+                    <div class="weekday">화</div>
+                    <div class="weekday">수</div>
+                    <div class="weekday">목</div>
+                    <div class="weekday">금</div>
+                    <div class="weekday saturday">토</div>
+                </div>
+                
+                <div class="days-grid" id="days-container">
+                    <!-- 날짜 데이터는 JavaScript에서 동적으로 생성 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 시간표 섹션 -->
+        <div id="timetable-section" class="section-container">
+            <div class="timetable-header">
+                <div class="current-year-month" id="timetable-year-month">
+                    <!-- 현재 연월이 JavaScript로 삽입됩니다 -->
+                </div>
+                <div class="buttons">
+                    <button class="btn calendar-btn" id="calendar-btn">달력</button>
+                    <button class="btn clear-schedule-btn" id="clear-schedule-btn">시간표 초기화</button>
+                </div>
+            </div>
+            <div id="schedule-table" class="schedule-table-container">
+                <!-- 시간표가 JavaScript로 동적 생성됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 날짜 변경 모달 -->
+    <div id="date-picker-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-date-picker">&times;</span>
+            <h2>날짜 변경</h2>
+            <div class="date-selector">
+                <select id="year-select">
+                    <!-- 연도 옵션은 JavaScript로 생성됩니다 -->
+                </select>
+                <select id="month-select">
+                    <option value="0">1월</option>
+                    <option value="1">2월</option>
+                    <option value="2">3월</option>
+                    <option value="3">4월</option>
+                    <option value="4">5월</option>
+                    <option value="5">6월</option>
+                    <option value="6">7월</option>
+                    <option value="7">8월</option>
+                    <option value="8">9월</option>
+                    <option value="9">10월</option>
+                    <option value="10">11월</option>
+                    <option value="11">12월</option>
+                </select>
+            </div>
+            <button id="apply-date" class="btn">적용</button>
+        </div>
+    </div>
+
+    <!-- To Do 모달 -->
+    <div id="todo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-todo">&times;</span>
+            <h2>일정 추가</h2>
+            <div class="selected-date" id="selected-date">
+                <!-- 선택된 날짜가 JavaScript로 삽입됩니다 -->
+            </div>
+            <div class="todo-form">
+                <input type="text" id="todo-title" placeholder="일정 제목">
+                <textarea id="todo-description" placeholder="일정 내용"></textarea>
+                <div class="importance-wrapper">
+                    <label>
+                        <input type="checkbox" id="todo-important">
+                        중요 일정
+                    </label>
+                </div>
+                <button id="add-todo" class="btn">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일정 목록 모달 -->
+    <div id="todos-list-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-todos-list">&times;</span>
+            <h2>일정 목록</h2>
+            <div class="selected-date" id="todos-date">
+                <!-- 선택된 날짜가 JavaScript로 삽입됩니다 -->
+            </div>
+            <div id="todos-container">
+                <!-- 일정 목록이 JavaScript로 삽입됩니다 -->
+            </div>
+            <button id="add-new-todo" class="btn">새 일정 추가</button>
+        </div>
+    </div>
+
+    <!-- To Do 편집 모달 -->
+    <div id="edit-todo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-edit-todo">&times;</span>
+            <h2>일정 수정</h2>
+            <div class="selected-date" id="edit-selected-date">
+                <!-- 선택된 날짜가 JavaScript로 삽입됩니다 -->
+            </div>
+            <div class="todo-form">
+                <input type="text" id="edit-todo-title" placeholder="일정 제목">
+                <textarea id="edit-todo-description" placeholder="일정 내용"></textarea>
+                <div class="importance-wrapper">
+                    <label>
+                        <input type="checkbox" id="edit-todo-important">
+                        중요 일정
+                    </label>
+                </div>
+                <button id="update-todo" class="btn">수정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 과제 모달 -->
+    <div id="assignment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-assignment">&times;</span>
+            <h2>과제 목록</h2>
+            <div class="assignment-list" id="assignment-list">
+                <!-- 과제 목록이 JavaScript로 삽입됩니다 -->
+            </div>
+            <button id="add-assignment-btn" class="btn">새 과제 추가</button>
+        </div>
+    </div>
+
+    <!-- 과제 추가 모달 수정 -->
+    <div id="add-assignment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-add-assignment">&times;</span>
+            <h2>과제 추가</h2>
+            <div class="assignment-form">
+                <div class="form-group">
+                    <label for="assignment-subject">과목</label>
+                    <input type="text" id="assignment-subject" placeholder="과목명">
+                </div>
+                <div class="form-group">
+                    <label for="assignment-title">과제명</label>
+                    <input type="text" id="assignment-title" placeholder="과제명">
+                </div>
+                <div class="form-group">
+                    <label for="assignment-content">내용</label>
+                    <textarea id="assignment-content" placeholder="과제 내용"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignment-url">과제 URL</label>
+                    <input type="url" id="assignment-url" placeholder="https://example.com/assignment">
+                </div>
+                <button id="save-assignment-btn" class="btn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 과제 상세 모달 수정 -->
+    <div id="assignment-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-assignment-detail">&times;</span>
+            <h2>과제 상세</h2>
+            <div class="assignment-detail" id="assignment-detail">
+                <!-- 과제 상세 내용이 JavaScript로 삽입됩니다 -->
+            </div>
+            <div class="assignment-actions">
+                <button id="edit-assignment-btn" class="btn">수정</button>
+                <button id="delete-assignment-btn" class="btn btn-danger">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 과제 수정 모달 수정 -->
+    <div id="edit-assignment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-edit-assignment">&times;</span>
+            <h2>과제 수정</h2>
+            <div class="assignment-form">
+                <div class="form-group">
+                    <label for="edit-assignment-subject">과목</label>
+                    <input type="text" id="edit-assignment-subject" placeholder="과목명">
+                </div>
+                <div class="form-group">
+                    <label for="edit-assignment-title">과제명</label>
+                    <input type="text" id="edit-assignment-title" placeholder="과제명">
+                </div>
+                <div class="form-group">
+                    <label for="edit-assignment-content">내용</label>
+                    <textarea id="edit-assignment-content" placeholder="과제 내용"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-assignment-url">과제 URL</label>
+                    <input type="url" id="edit-assignment-url" placeholder="https://example.com/assignment">
+                </div>
+                <button id="update-assignment-btn" class="btn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일 연결 - 순서 중요! -->
+    <script src="timetable.js"></script>
+    <script src="course_parser.js"></script>
+    <script src="assignments_parser.js"></script>
+    <script src="assignment.js"></script>
+    <script src="calendar.js"></script>
+</body>
+</html>

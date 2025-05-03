@@ -1,0 +1,627 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f5f5f5;
+}
+
+/* 앱 컨테이너 스타일 */
+.app-container {
+    width: 800px;
+    border: 2px solid #0077cc;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: white;
+}
+
+/* 섹션 컨테이너 스타일 - 달력과 시간표 공통 */
+.section-container {
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+/* 시간표 섹션 기본적으로 숨김 */
+#timetable-section {
+    display: none;
+}
+
+.calendar {
+    width: 100%;
+    border: none; /* 이중 테두리 방지 */
+}
+
+.calendar-header, .timetable-header {
+    background-color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.current-date-display, .current-year-month {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.current-date-display:hover {
+    background-color: #f0f0f0;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #007bff;
+}
+
+.time-btn {
+    background-color: #17a2b8;
+}
+
+.calendar-btn {
+    background-color: #17a2b8;
+}
+
+.clear-schedule-btn {
+    background-color: #dc3545;
+}
+
+.assignment-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.todo-btn {
+    background-color: #dc3545;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: white;
+}
+
+.weekday {
+    padding: 15px 0;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+.sunday {
+    color: #dc3545;
+}
+
+.saturday {
+    color: #0077cc;
+}
+
+/* 캘린더 그리드 전체 레이아웃을 일정하게 유지 */
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    width: 100%;
+}
+
+/* 각 날짜 셀은 내부 내용에 상관없이 동일한 크기를 가지도록 설정 */
+.day {
+    min-height: 80px; /* 원하는 높이로 조정 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.day:hover {
+    background-color: #f0f0f0;
+}
+
+/* 요일 및 날짜 번호는 중앙 정렬 */
+.day .day-number {
+    display: block;
+    text-align: center;
+}
+
+.day.today .day-number {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 32px;     /* 너비 */
+    height: 32px;    /* 높이 */
+    line-height: 32px; /* 수직 정렬 */
+    margin: 0 auto;  /* 수평 중앙 정렬 */
+}
+
+.day.sunday .day-number {
+    color: #dc3545;
+}
+
+.day.saturday .day-number {
+    color: #0077cc;
+}
+
+.day.other-month .day-number {
+    color: #aaa;
+}
+
+.badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: darkblue;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.todo-indicator {
+    display: block;
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px; /* 투두 표시 위쪽 여백 추가 */
+}
+
+.important-todo {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+close:hover {
+    color: #dc3545;
+}
+
+h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.date-selector {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.date-selector select {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    flex-grow: 1;
+}
+
+/* To Do 모달 스타일 */
+.selected-date {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.todo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#todo-title, #todo-description, #edit-todo-title, #edit-todo-description {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#todo-description, #edit-todo-description {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.importance-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+/* 일정 목록 스타일 */
+#todos-container {
+    margin: 15px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.todo-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-item.important {
+    border-left: 3px solid #dc3545;
+    padding-left: 7px;
+}
+
+/* UX 개선 - 수정 버튼 제거 및 클릭 힌트 추가 */
+.todo-content {
+    cursor: pointer;
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 4px;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.todo-content:hover {
+    background-color: #f5f5f5;
+}
+
+.todo-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.todo-desc {
+    color: #666;
+    font-size: 14px;
+}
+
+.edit-hint {
+    font-size: 11px;
+    color: #007bff;
+    margin-top: 5px;
+    text-align: right;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.todo-content:hover .edit-hint {
+    opacity: 1;
+}
+
+.todo-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.todo-delete {
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.todo-delete:hover {
+    text-decoration: underline;
+}
+
+/* 시간표 스타일 */
+.schedule-table-container {
+    margin: 20px 0;
+    overflow-x: auto;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 20px;
+}
+
+.schedule-header th {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.time-header {
+    width: 80px;
+}
+
+.day-header {
+    width: 100px;
+}
+
+.time-cell {
+    background-color: #e0f7fa;
+    color: #00796b;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ddd;
+    width: 80px;
+}
+
+.half-hour {
+    visibility: hidden;
+    height: 25px;
+}
+
+.schedule-cell {
+    border: 1px solid #ddd;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    padding: 0;
+}
+
+.current-year-month {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 시간표 입력 폼 스타일 */
+.schedule-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+/* 과제 관련 스타일 */
+.assignment-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.assignment-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.assignment-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-left: 4px solid;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.assignment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-item.high-priority {
+    border-left-color: #dc3545;
+}
+
+.assignment-item.medium-priority {
+    border-left-color: #ffc107;
+}
+
+.assignment-item.low-priority {
+    border-left-color: #28a745;
+}
+
+.assignment-subject {
+    display: inline-block;
+    padding: 3px 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.assignment-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.assignment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.assignment-deadline {
+    display: flex;
+    align-items: center;
+}
+
+.assignment-deadline.urgent {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.assignment-progress {
+    display: inline-block;
+    height: 6px;
+    width: 100px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-left: 8px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.assignment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* 과제 상세 스타일 */
+.assignment-detail {
+    margin-bottom: 20px;
+}
+
+.assignment-detail-header {
+    margin-bottom: 15px;
+}
+
+.assignment-detail-subject {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.assignment-detail-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.assignment-detail-content {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    white-space: pre-line;
+}
+
+.assignment-detail-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.assignment-progress-container {
+    margin-top: 4px;
+    margin-bottom: 4px; /* 프로그래스바 아래 여백 추가 */
+}
+
+.progress-bar-container {
+    height: 15px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 8px;
+    transition: width 0.3s;
+}
+
+#progress-slider {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.assignment-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+/* 캘린더 날짜에 과제 표시 */
+.assignment-indicator {
+    display: inline-block;
+    background-color: #ffc107;
+    color: #212529;
+    padding: 1px 3px;
+    border-radius: 3px;
+    margin: 3px auto 0;
+}
