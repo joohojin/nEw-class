@@ -14,6 +14,7 @@
 ## 프로젝트 구조
 
 ```text
+## requirements.txt           # 설치 부탁드려요...
 ├── backend/
 │   ├── main.py               # Canvas → CSV 동기화 스크립트
 │   └── Syllabuscsvmake.py    # 교내 강의계획서 → timetable.csv 변환
