@@ -1,0 +1,6 @@
+canvasapi
+pandas
+python-dateutil
+requests
+selenium
+python-dotenv
