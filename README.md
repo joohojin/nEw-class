@@ -27,8 +27,8 @@
 │   ├── course_parser.js      # timetable.csv → scheduleData
 │   └── assignments_parser.js # assignments.csv → assignmentData
 ├── data/
-│   ├── assignments.csv       # 📦 더미 과제 (주모 학생의 데이터 제공이 있었읍니다...)
-│   └── timetable.csv         # 📦 더미 과목 (마찬가지로...)
+│   ├── assignments.csv       # 더미 과제 (주모 학생의 데이터 제공이 있었읍니다...)
+│   └── timetable.csv         # 더미 과목 (마찬가지로...)
 └── README.md                 # 바로 이 파일
 ```
 
